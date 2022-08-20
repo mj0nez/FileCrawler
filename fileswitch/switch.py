@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional, Union
 
 from .filters import Filter
 from .providers import ActionProvider
@@ -12,7 +12,7 @@ class Switch:
     """A Switch is a decision point, where a file may be filtered and given to an action."""
 
     filter: Filter
-    action: ActionProvider
+    action: Union[Callable, ActionProvider]
 
     def evaluate(self, file) -> bool:
         """Check if file matches filter"""
@@ -52,16 +52,22 @@ class SwitchController:
 
 
 class SingleRouteController(SwitchController):
+    def check_switches(self, file: Path) -> tuple[Switch]:
+        """Returns a collection of switches, whose filter match the given file."""
+        route = tuple(switch for switch in self.switches if switch.evaluate(file))
+
+        if len(route) > 1:
+            raise MultiRouteException(
+                f"Multiple Filters {[r.filter for r in route]} match the given file {file}! "
+            )
+
+        return route
+
     def get_actions(self, file: Path) -> Optional[ActionProvider]:
 
         route = self.check_switches(file)
 
         if not route:
             return None
-
-        if len(route) > 1:
-            raise MultiRouteException(
-                f"Multiple Filters {[r.filter for r in route]} match the given file {file}! "
-            )
 
         return route[0].action
