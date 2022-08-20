@@ -4,7 +4,7 @@ from typing import Callable, Optional, Union
 
 from .filters import Filter
 from .providers import ActionProvider
-from .errors import MultiRouteException
+from .errors import MultiSwitchException
 
 
 @dataclass(frozen=True)
@@ -51,13 +51,13 @@ class SwitchController:
         self.switches.extend(switches)
 
 
-class SingleRouteController(SwitchController):
+class SingleSwitchController(SwitchController):
     def check_switches(self, file: Path) -> tuple[Switch]:
         """Returns a collection of switches, whose filter match the given file."""
         route = tuple(switch for switch in self.switches if switch.evaluate(file))
 
         if len(route) > 1:
-            raise MultiRouteException(
+            raise MultiSwitchException(
                 f"Multiple Filters {[r.filter for r in route]} match the given file {file}! "
             )
 

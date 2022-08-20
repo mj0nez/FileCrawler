@@ -3,9 +3,12 @@ from pathlib import Path
 import pytest
 from fileswitch.filters import (
     ContentFilter,
+    FileExtensionFilter,
     HelloWorldFilter,
     MatchAny,
+    MultiStageFilter,
     NotHelloWorldFilter,
+    RegexFileNameFilter,
     RegexFilter,
     SimpleTxtFileFilter,
 )
@@ -62,3 +65,24 @@ def test_content_filter():
     assert isinstance(scanner, ContentFilter)
     assert scanner.evaluate()
     assert scanner.description() == "Sample description"
+
+
+def test_multi_stage_filter():
+    all_filter = MultiStageFilter(
+        how=all,
+        filters=[NotHelloWorldFilter(), RegexFileNameFilter(r"(?<=abc)def", "")],
+    )
+    any_filter = MultiStageFilter(
+        how=any,
+        filters=[NotHelloWorldFilter(), RegexFileNameFilter(r"(?<=abc)def", "")],
+    )
+
+    assert not all_filter.evaluate(Path("156546565"))
+    assert any_filter.evaluate(Path("156546565"))
+
+
+def test_extension_filter():
+    txt_filter = FileExtensionFilter(".txt")
+
+    assert txt_filter.evaluate(Path("HelloWorld.txt"))
+    assert not txt_filter.evaluate(Path("HelloWorld.log"))

@@ -50,6 +50,17 @@ class MatchAny(Filter):
         return "Matches any file"
 
 
+@dataclass(frozen=True)
+class FileExtensionFilter(Filter):
+    extension: str
+
+    def evaluate(self, file: Path) -> bool:
+        return file.suffix == self.extension
+
+    def description(self) -> str:
+        return f"Filters all .{self.extension} files."
+
+
 class RegexFilter(Filter):
     """Filters files names with a given regular expressions."""
 
@@ -64,6 +75,11 @@ class RegexFilter(Filter):
 
     def description(self) -> str:
         return self.__description
+
+
+class RegexFileNameFilter(RegexFilter):
+    def evaluate(self, file: Path) -> bool:
+        return super().evaluate(file.stem)
 
 
 class ContentFilter(Filter):
@@ -104,7 +120,7 @@ class MultiStageFilter(Filter):
     """
 
     how: Callable[[list], bool]  # any / all
-    filters: list[Filter] = field(default_factory=list)
+    filters: list[Filter]
 
     def evaluate(self, file) -> bool:
 
