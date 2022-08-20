@@ -33,13 +33,13 @@ class SwitchController:
 
     switches: list[Switch] = field(default_factory=list)
 
-    def check_route(self, file: Path) -> tuple[Switch]:
+    def check_switches(self, file: Path) -> tuple[Switch]:
         """Returns a collection of switches, whose filter match the given file."""
         return tuple(switch for switch in self.switches if switch.evaluate(file))
 
-    def get_route(self, file: Path) -> tuple[Procedure]:
+    def get_procedures(self, file: Path) -> tuple[Procedure]:
         """Returns a collection of procedures, whose filter match the given file."""
-        return tuple(switch.procedure for switch in self.check_route(file))
+        return tuple(switch.procedure for switch in self.check_switches(file))
 
     def register_switch(self, switch: Switch) -> None:
         """Adds a switch to the controller."""
@@ -52,9 +52,9 @@ class SwitchController:
 
 
 class SingleRouteController(SwitchController):
-    def get_route(self, file: Path) -> Optional[Procedure]:
+    def get_procedures(self, file: Path) -> Optional[Procedure]:
 
-        route = self.check_route(file)
+        route = self.check_switches(file)
 
         if not route:
             return None
@@ -63,5 +63,5 @@ class SingleRouteController(SwitchController):
             raise MultiRouteException(
                 f"Multiple Filters {[r.filter for r in route]} match the given file {file}! "
             )
-        else:
-            return route[0].procedure
+
+        return route[0].procedure
