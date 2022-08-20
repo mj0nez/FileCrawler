@@ -1,11 +1,9 @@
 from filter.filters import (
-    ContentFilter,
     MatchAny,
     HelloWorldFilter,
     NotHelloWorldFilter,
     FilterBatch,
 )
-from filter.procedures import LogPrinter
 from pathlib import Path
 
 
@@ -37,10 +35,6 @@ def main():
 
     # evaluate a file with a batch filter:
     print(f"for {file_1= } matching filters are {batch_filter.evaluate(file_1)}")
-
-    # for f in files:
-    #     print(batch_filter.evaluate(f))
-
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,38 @@
+[project]
+name = "fileswitch"
+version = "0.1.0"
+description = """A filter based file router.\nDesigned to allow granular file routings based on parametrized filters and varying sources and destinations."""
+authors = [
+    {name = "Marcel Johannesmann", email="mj0nez@fn.de"},
+]
+license = {file = "LICENSE"}
+# readme = "README.md"
+requires-python = ">=3.9.5"
+
+keywords = ["files", "routing", "filter", "transfer"]
+
+classifiers = [
+    "Topic :: File Routing"
+]
+
+# Requirements: This is done differently by poetry!
+dependencies = [
+    "pandas>=1.4.3"
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=22.6.0",
+]
+
+# [project.urls]
+# homepage = "https://github.com/MartinThoma/infer_pyproject"
+# documentation = "https://github.com/MartinThoma/infer_pyproject"
+# repository = "https://github.com/MartinThoma/infer_pyproject"
+
+
+[build-system]
+# These are the assumed default build requirements from pip:
+# https://pip.pypa.io/en/stable/reference/pip/#pep-517-and-518-support
+requires = ["setuptools>=43.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
