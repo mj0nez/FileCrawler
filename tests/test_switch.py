@@ -3,7 +3,7 @@ from fileswitch.filters import (
     HelloWorldFilter,
     NotHelloWorldFilter,
 )
-from fileswitch.procedures import LogPrinter
+from fileswitch.procedures import LogPrinter, Procedure
 
 from fileswitch.switch import SingleRouteController, Switch, SwitchController
 
@@ -19,7 +19,10 @@ def main():
     files = [file_1, file_2, hello_world_file]
 
     filter = HelloWorldFilter()
-    procedure = LogPrinter(format_str="File {} matches filter!")
+
+    procedure = Procedure(
+        lambda x: print(f"File {x} matches filter!"), "Prints the file name."
+    )
 
     hello_world_switch = Switch(filter=filter, procedure=procedure)
 
@@ -30,10 +33,10 @@ def main():
 
     controller.register_switch(hello_world_switch)
 
-    print(controller.check_route(hello_world_file))
+    print(controller.check_switches(hello_world_file))
 
-    for route in controller.get_route(hello_world_file):
-        route.process(hello_world_file)
+    for procedure in controller.get_procedures(hello_world_file):
+        procedure.action(hello_world_file)
 
     single_controller = SingleRouteController()
     # not_hello_world_filter = NotHelloWorldFilter()

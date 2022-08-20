@@ -1,5 +1,5 @@
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Protocol
 
@@ -92,6 +92,32 @@ class EdiFileFilter(ContentFilter):
 
     def load(self, file) -> EDIenergy:
         return EDIenergy.from_file(file, parser_class=SparseParser)
+
+
+@dataclass(frozen=True)
+class MultiStageFilter(Filter):
+    """Some Filter may combine different logic: e.g. analyzing file name and it's content.
+
+    This is usefully, if the logic should be split in different stages or is
+    to complex for one function. In most cases a single filter stage should be
+    enough.
+    """
+
+    how: Callable[[list], bool]  # any / all
+    filters: list[Filter] = field(default_factory=list)
+
+    def evaluate(self, file) -> bool:
+
+        # evaluate all filters and return overall assessment
+        evaluations = []
+
+        for filter_stage in self.filters:
+            # If any was chosen, we could break after the first True value,
+            # but then we would have to check an additional conditional every
+            # loop iteration. Utilizing the built-ins should be more performant.
+            evaluations.append(filter_stage.evaluate(file))
+
+        return self.how(evaluations)
 
 
 # TODO add FilterFactory
