@@ -8,10 +8,10 @@ from edipy.core.parser import SparseParser
 
 
 class Filter(Protocol):
-    """A Filter implements conditional logic that precedes an action or procedure."""
+    """A Filter implements conditional logic that precedes an action."""
 
     def evaluate(self, file) -> bool:
-        """A Filter implements conditional logic that precedes an action or procedure."""
+        """A Filter implements conditional logic that precedes an action ."""
 
     def description(self) -> str:
         """Provides a short description of it's evaluation method"""

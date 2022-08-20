@@ -3,23 +3,23 @@ from pathlib import Path
 from typing import Optional
 
 from .filters import Filter
-from .procedures import Procedure
+from .providers import ActionProvider
 from .errors import MultiRouteException
 
 
 @dataclass(frozen=True)
 class Switch:
-    """A Switch is a decision point, where a file may be filtered and given to a procedure."""
+    """A Switch is a decision point, where a file may be filtered and given to an action."""
 
     filter: Filter
-    procedure: Procedure
+    action: ActionProvider
 
     def evaluate(self, file) -> bool:
         """Check if file matches filter"""
         return self.filter.evaluate(file)
 
     def __repr__(self) -> str:
-        return f"<SWITCH>: {self.filter} || {self.procedure}"
+        return f"<SWITCH>: {self.filter} || {self.action}"
 
 
 @dataclass
@@ -28,7 +28,7 @@ class SwitchController:
 
     A SwitchController operates like any departure controller, all incoming
     files are evaluated based on the registered Switches and send on their way,
-    by providing the respective procedure.
+    by providing the respective action.
     """
 
     switches: list[Switch] = field(default_factory=list)
@@ -37,9 +37,9 @@ class SwitchController:
         """Returns a collection of switches, whose filter match the given file."""
         return tuple(switch for switch in self.switches if switch.evaluate(file))
 
-    def get_procedures(self, file: Path) -> tuple[Procedure]:
-        """Returns a collection of procedures, whose filter match the given file."""
-        return tuple(switch.procedure for switch in self.check_switches(file))
+    def get_actions(self, file: Path) -> tuple[ActionProvider]:
+        """Returns a collection of actions, whose filter match the given file."""
+        return tuple(switch.action for switch in self.check_switches(file))
 
     def register_switch(self, switch: Switch) -> None:
         """Adds a switch to the controller."""
@@ -52,7 +52,7 @@ class SwitchController:
 
 
 class SingleRouteController(SwitchController):
-    def get_procedures(self, file: Path) -> Optional[Procedure]:
+    def get_actions(self, file: Path) -> Optional[ActionProvider]:
 
         route = self.check_switches(file)
 
@@ -64,4 +64,4 @@ class SingleRouteController(SwitchController):
                 f"Multiple Filters {[r.filter for r in route]} match the given file {file}! "
             )
 
-        return route[0].procedure
+        return route[0].action
