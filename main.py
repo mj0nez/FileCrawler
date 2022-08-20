@@ -1,6 +1,13 @@
-from amenergy.transfer import MatchAny, MySampleFilter, MySecondFilter, BatchFilter
-
+from filter.filters import (
+    ContentFilter,
+    MatchAny,
+    HelloWorldFilter,
+    NotHelloWorldFilter,
+    FilterBatch,
+)
+from filter.procedures import LogPrinter
 from pathlib import Path
+
 
 def main():
 
@@ -10,18 +17,18 @@ def main():
 
     files = [file_1, file_2, hello_world_file]
 
-    hello_world_filter = MySampleFilter()
-    not_hello_world_filter = MySecondFilter()
+    hello_world_filter = HelloWorldFilter()
+    not_hello_world_filter = NotHelloWorldFilter()
     match_any = MatchAny()
 
     print(hello_world_filter)
 
-    batch_filter = BatchFilter([hello_world_filter, not_hello_world_filter, match_any])
+    batch_filter = FilterBatch([hello_world_filter, not_hello_world_filter, match_any])
 
-    # execute filter 1 on all files
+    # check filter 1 on all files
     for f in files:
-        if hello_world_filter.evaluate(f):
-            hello_world_filter.process(f)
+        print(f"'{f}' : matches Hello World:\t{hello_world_filter.evaluate(f)}")
+    # print("\n")
 
     # execute a dry run
     for f in files:
@@ -33,6 +40,11 @@ def main():
 
     # for f in files:
     #     print(batch_filter.evaluate(f))
+
+    from filter.filters import SimpleTxtScanner
+
+    scanner = SimpleTxtScanner()
+    print(isinstance(scanner, ContentFilter))
 
 
 if __name__ == "__main__":
