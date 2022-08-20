@@ -1,9 +1,9 @@
-from filter.filters import (
+from fileswitch.filters import (
     MatchAny,
     HelloWorldFilter,
     NotHelloWorldFilter,
-    FilterBatch,
 )
+from fileswitch.procedures import LogPrinter
 from pathlib import Path
 
 
@@ -21,8 +21,6 @@ def main():
 
     print(hello_world_filter)
 
-    batch_filter = FilterBatch([hello_world_filter, not_hello_world_filter, match_any])
-
     # check filter 1 on all files
     for f in files:
         print(f"'{f}' : matches Hello World:\t{hello_world_filter.evaluate(f)}")
@@ -33,8 +31,6 @@ def main():
         if hello_world_filter.evaluate(f):
             print(f"File '{f}' was matches '{hello_world_filter}'")
 
-    # evaluate a file with a batch filter:
-    print(f"for {file_1= } matching filters are {batch_filter.evaluate(file_1)}")
 
 if __name__ == "__main__":
     main()

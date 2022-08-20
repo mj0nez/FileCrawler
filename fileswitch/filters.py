@@ -94,16 +94,4 @@ class EdiFileFilter(ContentFilter):
         return EDIenergy.from_file(file, parser_class=SparseParser)
 
 
-@dataclass
-class FilterBatch:
-    """A list of filters which should be applied as batch. Usually a batch of filters is used per upstream source."""
-
-    filters: list[Filter]
-
-    def evaluate(self, file: Path) -> list[Filter]:
-        """Returns a list of filters, which the given file matches."""
-        return [filter for filter in self.filters if filter.evaluate(file)]
-
-    def evaluate_and_process(self, file):
-        for filter in self.evaluate(file):
-            filter.process(file)
+# TODO add FilterFactory

@@ -1,7 +1,8 @@
-from filter.filters import (
+from fileswitch.filters import (
     ContentFilter,
+    SimpleTxtFileFilter,
 )
-from filter.filters import SimpleTxtFileFilter
+
 
 def main():
 

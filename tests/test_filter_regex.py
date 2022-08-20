@@ -1,7 +1,4 @@
-from filter.filters import (
-    ContentFilter,
-)
-from filter.filters import SimpleTxtFileFilter, RegexFilter
+from fileswitch.filters import RegexFilter
 
 
 def main():
@@ -10,9 +7,6 @@ def main():
 
     print(regex)
     print(regex.evaluate("abcdef"), regex.description())
-
-    scanner = SimpleTxtFileFilter(lambda: True, lambda: "Sample description")
-    print(isinstance(scanner, ContentFilter), scanner.evaluate(), scanner.description())
 
 
 if __name__ == "__main__":
