@@ -15,7 +15,7 @@ classifiers = [
     "Topic :: File Routing"
 ]
 
-# Requirements: This is done differently by poetry!
+# TODO pandas dep should be moved to optional EDI package!
 dependencies = [
     "pandas>=1.4.3"
 ]
