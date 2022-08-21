@@ -92,7 +92,7 @@ def test_single_route_controller(hello_world_file):
 
     # file should trigger switch
     controller.register_switch(hello_switch)
-    assert any(controller.check_switches(hello_world_file))
+    assert controller.check_switches(hello_world_file)
 
     # ensure single match
     controller.register_switch(match_any)
