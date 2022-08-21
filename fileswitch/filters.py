@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Protocol
+from typing import Any, Callable, Optional, Protocol
 
 from edipy import EDIenergy
 from edipy.core.parser import SparseParser
@@ -18,6 +18,21 @@ class Filter(Protocol):
 
     def __repr__(self) -> str:
         return f"<FILTER {self.__class__.__name__} >: {self.description()}"
+
+
+@dataclass(frozen=True)
+class ModularFilter(Filter):
+    """A Filter which can be parameterized."""
+
+    name: str
+    evaluate: Callable[[Any], bool]
+    description_: str = ""
+
+    def description(self) -> str:
+        return self.description_ if self.description_ is not None else ""
+
+    def __repr__(self) -> str:
+        return f"<FILTER {self.name} >: {self.description()}"
 
 
 class HelloWorldFilter(Filter):

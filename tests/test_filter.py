@@ -6,6 +6,7 @@ from fileswitch.filters import (
     FileExtensionFilter,
     HelloWorldFilter,
     MatchAny,
+    ModularFilter,
     MultiStageFilter,
     NotHelloWorldFilter,
     RegexFileNameFilter,
@@ -86,3 +87,14 @@ def test_extension_filter():
 
     assert txt_filter.evaluate(Path("HelloWorld.txt"))
     assert not txt_filter.evaluate(Path("HelloWorld.log"))
+
+
+def test_modular_filter():
+    my_generic_filter = ModularFilter("Sample", lambda x: True, "Description")
+
+    assert my_generic_filter.evaluate("a")
+
+    def is_greater_five(i) -> bool:
+        return i > 5
+
+    greater_five_filter = ModularFilter("GreaterFive", is_greater_five)
