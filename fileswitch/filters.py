@@ -29,10 +29,11 @@ class ModularFilter(Filter):
     description_: str = ""
 
     def description(self) -> str:
-        return self.description_ if self.description_ is not None else ""
+        return self.description_
 
     def __repr__(self) -> str:
-        return f"<FILTER {self.name} >: {self.description()}"
+        description = ": " + self.description_ if self.description_ else ""
+        return f"<FILTER {self.name} >{description}"
 
 
 class HelloWorldFilter(Filter):
