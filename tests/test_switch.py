@@ -4,7 +4,7 @@ from fileswitch.filters import (
     NotHelloWorldFilter,
 )
 from fileswitch.errors import MultiSwitchException
-from fileswitch.providers import ActionProvider, get_print_action
+from fileswitch.routes import Route, get_console_route
 from fileswitch.switch import SingleSwitchController, Switch, SwitchController
 
 from pathlib import Path
@@ -26,7 +26,7 @@ def hello_world_file():
 
 @pytest.mark.usefixtures("files")
 def test_switch_pass(files):
-    switch = Switch(filter=MatchAny(), action=get_print_action())
+    switch = Switch(filter=MatchAny(), route=get_console_route())
     assert switch
     for f in files:
         assert switch.evaluate(f)
@@ -34,7 +34,7 @@ def test_switch_pass(files):
 
 @pytest.mark.usefixtures("files")
 def test_switch(files):
-    switch = Switch(filter=HelloWorldFilter(), action=get_print_action())
+    switch = Switch(filter=HelloWorldFilter(), route=get_console_route())
     assert switch
     for f, truth in zip(files, [False, False, True]):
         assert switch.evaluate(f) == truth
@@ -43,7 +43,7 @@ def test_switch(files):
 @pytest.mark.usefixtures("hello_world_file")
 def test_switch_controller(hello_world_file):
 
-    switch = Switch(filter=HelloWorldFilter(), action=get_print_action())
+    switch = Switch(filter=HelloWorldFilter(), route=get_console_route())
 
     controller = SwitchController()
     controller.register_switch(switch)
@@ -53,7 +53,7 @@ def test_switch_controller(hello_world_file):
     assert matching_switches and len(matching_switches) == 1
 
     # add another switch to the controller and check again
-    controller.register_switch(Switch(filter=MatchAny(), action=get_print_action()))
+    controller.register_switch(Switch(filter=MatchAny(), route=get_console_route()))
     matching_switches = controller.check_switches(hello_world_file)
     assert matching_switches and len(matching_switches) == 2
 
@@ -61,32 +61,32 @@ def test_switch_controller(hello_world_file):
 @pytest.mark.usefixtures("hello_world_file")
 def test_switch_controller_w_action_provider(hello_world_file):
     hello_switch = Switch(
-        filter=HelloWorldFilter(), action=ActionProvider(lambda: "Hello", "Say's Hello")
+        filter=HelloWorldFilter(), route=Route(lambda: "Hello", "Say's Hello")
     )
 
     controller = SwitchController()
     controller.register_switch(hello_switch)
-    assert controller.get_actions(hello_world_file)[0].action() == "Hello"
+    assert controller.get_routes(hello_world_file)[0].action() == "Hello"
 
 
 @pytest.mark.usefixtures("files")
 def test_switch_controller_routing(files):
 
-    hello_switch = Switch(filter=HelloWorldFilter(), action=lambda: "Hello")
-    not_hello_switch = Switch(filter=NotHelloWorldFilter(), action=lambda: "Not Hello")
+    hello_switch = Switch(filter=HelloWorldFilter(), route=lambda: "Hello")
+    not_hello_switch = Switch(filter=NotHelloWorldFilter(), route=lambda: "Not Hello")
 
     controller = SwitchController()
     controller.register_switches([hello_switch, not_hello_switch])
 
     for f, t in zip(files, ["Not Hello", "Not Hello", "Hello"]):
-        assert controller.get_actions(f)[0]() == t
+        assert controller.get_routes(f)[0]() == t
 
 
 @pytest.mark.usefixtures("hello_world_file")
 def test_single_route_controller(hello_world_file):
 
-    hello_switch = Switch(filter=HelloWorldFilter(), action=lambda: "Hello")
-    match_any = Switch(filter=MatchAny(), action=lambda: "Any")
+    hello_switch = Switch(filter=HelloWorldFilter(), route=lambda: "Hello")
+    match_any = Switch(filter=MatchAny(), route=lambda: "Any")
 
     controller = SingleSwitchController()
 

@@ -3,23 +3,23 @@ from pathlib import Path
 from typing import Callable, Optional, Union
 
 from .filters import Filter
-from .providers import ActionProvider
+from .routes import Route
 from .errors import MultiSwitchException
 
 
 @dataclass(frozen=True)
 class Switch:
-    """A Switch is a decision point, where a file may be filtered and given to an action."""
+    """Switches set the route for files, if they match the filters criteria."""
 
     filter: Filter
-    action: Union[Callable, ActionProvider]
+    route: Union[Callable, Route]
 
     def evaluate(self, file) -> bool:
         """Check if file matches filter"""
         return self.filter.evaluate(file)
 
     def __repr__(self) -> str:
-        return f"<SWITCH>: {self.filter} || {self.action}"
+        return f"<SWITCH>: {self.filter} || {self.route}"
 
 
 @dataclass
@@ -27,8 +27,8 @@ class SwitchController:
     """A controller oversees the switching per file source.
 
     A SwitchController operates like any departure controller, all incoming
-    files are evaluated based on the registered Switches and send on their way,
-    by providing the respective action.
+    files are evaluated based on the registered Switches and provided by their
+    corresponding routes or None.
     """
 
     switches: list[Switch] = field(default_factory=list)
@@ -37,9 +37,9 @@ class SwitchController:
         """Returns a collection of switches, whose filter match the given file."""
         return tuple(switch for switch in self.switches if switch.evaluate(file))
 
-    def get_actions(self, file: Path) -> tuple[ActionProvider]:
-        """Returns a collection of actions, whose filter match the given file."""
-        return tuple(switch.action for switch in self.check_switches(file))
+    def get_routes(self, file: Path) -> tuple[Route]:
+        """Returns a collection of routes, by evaluating the registered switches."""
+        return tuple(switch.route for switch in self.check_switches(file))
 
     def register_switch(self, switch: Switch) -> None:
         """Adds a switch to the controller."""
@@ -54,9 +54,9 @@ class SwitchController:
 class SingleSwitchController(SwitchController):
     """Allows only one Switch per file.
 
-    Usually, only one Switch-Filter should match per file. But enforce this
-    and avoid unexpected behavior, the SingeSwitchController allows only one
-    triggered Switch.
+    Usually, only one Switch should be triggered by a file, but some Filters
+    may be too greedy. To avoid unexpected behavior the
+    SingeSwitchController raises an exception if multiple Switches were triggered.
 
     """
 
@@ -87,11 +87,11 @@ class SingleSwitchController(SwitchController):
 
         return route[0]
 
-    def get_actions(self, file: Path) -> Optional[ActionProvider]:
+    def get_routes(self, file: Path) -> Optional[Route]:
 
         route = self.check_switches(file)
 
         if not route:
             return None
 
-        return route.action
+        return route.route
