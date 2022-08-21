@@ -52,8 +52,32 @@ class SwitchController:
 
 
 class SingleSwitchController(SwitchController):
-    def check_switches(self, file: Path) -> tuple[Switch]:
-        """Returns a collection of switches, whose filter match the given file."""
+    """Allows only one Switch per file.
+
+    Usually, only one Switch-Filter should match per file. But enforce this
+    and avoid unexpected behavior, the SingeSwitchController allows only one
+    triggered Switch.
+
+    """
+
+    def check_switches(self, file: Path) -> Switch:
+        """Gets matching switches from registered list of Switches.
+
+        Parameters
+        ----------
+        file : Path
+            to evaluate
+
+        Returns
+        -------
+        Switch
+            triggered by the evaluated file
+
+        Raises
+        ------
+        MultiSwitchException
+            if more than one Switch was triggered
+        """
         route = tuple(switch for switch in self.switches if switch.evaluate(file))
 
         if len(route) > 1:
@@ -61,7 +85,7 @@ class SingleSwitchController(SwitchController):
                 f"Multiple Filters {[r.filter for r in route]} match the given file {file}! "
             )
 
-        return route
+        return route[0]
 
     def get_actions(self, file: Path) -> Optional[ActionProvider]:
 
@@ -70,4 +94,4 @@ class SingleSwitchController(SwitchController):
         if not route:
             return None
 
-        return route[0].action
+        return route.action
