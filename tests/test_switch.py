@@ -98,3 +98,8 @@ def test_single_route_controller(hello_world_file):
     controller.register_switch(match_any)
     with pytest.raises(MultiSwitchException):
         controller.check_switches(hello_world_file)
+
+
+def test_hash():
+    h1, h2 = HelloWorldFilter(), HelloWorldFilter()
+    assert h1 == h2

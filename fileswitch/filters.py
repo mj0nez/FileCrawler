@@ -3,8 +3,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Optional, Protocol
 
-from edipy import EDIenergy
-from edipy.core.parser import SparseParser
+# try:
+#     from edipy import EDIenergy
+#     from edipy.core.parser import SparseParser
+# except ModuleNotFoundError:
+#     pass
 
 
 class Filter(Protocol):
@@ -119,11 +122,11 @@ class SimpleTxtFileFilter(ContentFilter):
         return content
 
 
-class EdiFileFilter(ContentFilter):
-    """Filters EDIfact files depending on their content."""
+# class EdiFileFilter(ContentFilter):
+#     """Filters EDIfact files depending on their content."""
 
-    def load(self, file) -> EDIenergy:
-        return EDIenergy.from_file(file, parser_class=SparseParser)
+#     def load(self, file) -> EDIenergy:
+#         return EDIenergy.from_file(file, parser_class=SparseParser)
 
 
 @dataclass(frozen=True)
