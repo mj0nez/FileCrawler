@@ -6,7 +6,7 @@ authors = [
     {name = "Marcel Johannesmann", email="mj0nez@fn.de"},
 ]
 license = {file = "LICENSE"}
-# readme = "README.md"
+readme = "README.md"
 requires-python = ">=3.9.5"
 
 keywords = ["files", "routing", "filter", "transfer"]
@@ -15,21 +15,18 @@ classifiers = [
     "Topic :: File Routing"
 ]
 
-# TODO pandas dep should be moved to optional EDI package!
 dependencies = [
-    "pandas>=1.4.3"
 ]
 
 [project.optional-dependencies]
 dev = [
     "black>=22.6.0",
-    "pytest>=7.1.2"
+    "pytest>=7.1.2",
 ]
 
-# [project.urls]
-# homepage = "https://github.com/MartinThoma/infer_pyproject"
-# documentation = "https://github.com/MartinThoma/infer_pyproject"
-# repository = "https://github.com/MartinThoma/infer_pyproject"
+[project.urls]
+homepage = "https://github.com/mj0nez/FileSwitch"
+repository = "https://github.com/mj0nez/FileSwitch"
 
 
 [build-system]
