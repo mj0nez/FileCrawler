@@ -3,12 +3,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Optional, Protocol
 
-# try:
-#     from edipy import EDIenergy
-#     from edipy.core.parser import SparseParser
-# except ModuleNotFoundError:
-#     pass
-
 
 class Filter(Protocol):
     """A Filter implements conditional logic that precedes an action."""
@@ -122,18 +116,11 @@ class SimpleTxtFileFilter(ContentFilter):
         return content
 
 
-# class EdiFileFilter(ContentFilter):
-#     """Filters EDIfact files depending on their content."""
-
-#     def load(self, file) -> EDIenergy:
-#         return EDIenergy.from_file(file, parser_class=SparseParser)
-
-
 @dataclass(frozen=True)
 class MultiStageFilter(Filter):
     """Some Filter may combine different logic: e.g. analyzing file name and it's content.
 
-    This is usefully, if the logic should be split in different stages or is
+    This is useful, when the logic should be split in different blocks or is
     to complex for one function. In most cases a single filter stage should be
     enough.
     """
