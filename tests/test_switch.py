@@ -24,80 +24,80 @@ def hello_world_file():
     return Path("Hello World.txt")
 
 
-@pytest.mark.usefixtures("files")
-def test_switch_pass(files):
-    switch = Switch(filter=MatchAny(), route=get_console_route())
-    assert switch
-    for f in files:
-        assert switch.evaluate(f)
+class TestSwitch:
+    @pytest.mark.usefixtures("files")
+    def test_switch_pass(self, files):
+        switch = Switch(filter=MatchAny(), route=get_console_route())
+        assert switch
+        for f in files:
+            assert switch.evaluate(f)
+
+    @pytest.mark.usefixtures("files")
+    def test_switch(self, files):
+        switch = Switch(filter=HelloWorldFilter(), route=get_console_route())
+        assert switch
+        for f, truth in zip(files, [False, False, True]):
+            assert switch.evaluate(f) == truth
 
 
-@pytest.mark.usefixtures("files")
-def test_switch(files):
-    switch = Switch(filter=HelloWorldFilter(), route=get_console_route())
-    assert switch
-    for f, truth in zip(files, [False, False, True]):
-        assert switch.evaluate(f) == truth
+class TestSwitchController:
+    @pytest.mark.usefixtures("hello_world_file")
+    def test_switch_controller(self, hello_world_file):
 
+        switch = Switch(filter=HelloWorldFilter(), route=get_console_route())
 
-@pytest.mark.usefixtures("hello_world_file")
-def test_switch_controller(hello_world_file):
+        controller = SwitchController()
+        controller.register_switch(switch)
 
-    switch = Switch(filter=HelloWorldFilter(), route=get_console_route())
+        # check controller evals switch correctly
+        matching_switches = controller.check_switches(hello_world_file)
+        assert matching_switches and len(matching_switches) == 1
 
-    controller = SwitchController()
-    controller.register_switch(switch)
+        # add another switch to the controller and check again
+        controller.register_switch(Switch(filter=MatchAny(), route=get_console_route()))
+        matching_switches = controller.check_switches(hello_world_file)
+        assert matching_switches and len(matching_switches) == 2
 
-    # check controller evals switch correctly
-    matching_switches = controller.check_switches(hello_world_file)
-    assert matching_switches and len(matching_switches) == 1
+    @pytest.mark.usefixtures("hello_world_file")
+    def test_switch_controller_w_action_provider(self, hello_world_file):
+        hello_switch = Switch(
+            filter=HelloWorldFilter(), route=Route(lambda: "Hello", "Say's Hello")
+        )
 
-    # add another switch to the controller and check again
-    controller.register_switch(Switch(filter=MatchAny(), route=get_console_route()))
-    matching_switches = controller.check_switches(hello_world_file)
-    assert matching_switches and len(matching_switches) == 2
+        controller = SwitchController()
+        controller.register_switch(hello_switch)
+        assert controller.get_routes(hello_world_file)[0].action() == "Hello"
 
+    @pytest.mark.usefixtures("files")
+    def test_switch_controller_routing(self, files):
 
-@pytest.mark.usefixtures("hello_world_file")
-def test_switch_controller_w_action_provider(hello_world_file):
-    hello_switch = Switch(
-        filter=HelloWorldFilter(), route=Route(lambda: "Hello", "Say's Hello")
-    )
+        hello_switch = Switch(filter=HelloWorldFilter(), route=lambda: "Hello")
+        not_hello_switch = Switch(
+            filter=NotHelloWorldFilter(), route=lambda: "Not Hello"
+        )
 
-    controller = SwitchController()
-    controller.register_switch(hello_switch)
-    assert controller.get_routes(hello_world_file)[0].action() == "Hello"
+        controller = SwitchController()
+        controller.register_switches([hello_switch, not_hello_switch])
 
+        for f, t in zip(files, ["Not Hello", "Not Hello", "Hello"]):
+            assert controller.get_routes(f)[0]() == t
 
-@pytest.mark.usefixtures("files")
-def test_switch_controller_routing(files):
+    @pytest.mark.usefixtures("hello_world_file")
+    def test_single_route_controller(self, hello_world_file):
 
-    hello_switch = Switch(filter=HelloWorldFilter(), route=lambda: "Hello")
-    not_hello_switch = Switch(filter=NotHelloWorldFilter(), route=lambda: "Not Hello")
+        hello_switch = Switch(filter=HelloWorldFilter(), route=lambda: "Hello")
+        match_any = Switch(filter=MatchAny(), route=lambda: "Sample ")
 
-    controller = SwitchController()
-    controller.register_switches([hello_switch, not_hello_switch])
+        controller = SingleSwitchController()
 
-    for f, t in zip(files, ["Not Hello", "Not Hello", "Hello"]):
-        assert controller.get_routes(f)[0]() == t
+        # file should trigger switch
+        controller.register_switch(hello_switch)
+        assert controller.check_switches(hello_world_file)
 
-
-@pytest.mark.usefixtures("hello_world_file")
-def test_single_route_controller(hello_world_file):
-
-    hello_switch = Switch(filter=HelloWorldFilter(), route=lambda: "Hello")
-    match_any = Switch(filter=MatchAny(), route=lambda: "Any")
-
-    controller = SingleSwitchController()
-
-    # file should trigger switch
-    controller.register_switch(hello_switch)
-    assert controller.check_switches(hello_world_file)
-
-    # ensure single match
-    controller.register_switch(match_any)
-    with pytest.raises(MultiSwitchException):
-        controller.check_switches(hello_world_file)
+        # ensure single match
+        controller.register_switch(match_any)
+        with pytest.raises(MultiSwitchException):
+            controller.check_switches(hello_world_file)
 
 
 def test_hash():
