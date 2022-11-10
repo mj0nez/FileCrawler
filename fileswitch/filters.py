@@ -74,15 +74,15 @@ class FileExtensionFilter(Filter):
         return f"Filters all .{self.extension} files."
 
 
-class RegexFilter(Filter):
-    """Filters files names with a given regular expressions."""
+class AbstractRegexFilter:
+    """Filters files with a given regular expressions."""
 
     def __init__(self, pattern, description) -> None:
         self.__pattern = re.compile(pattern)  # precompile for efficient reuse
         self.__description = f"{description}, Pattern: {pattern}"
 
-    def evaluate(self, file) -> bool:
-        if self.__pattern.search(file):
+    def evaluate(self, file_or_content: str) -> bool:
+        if self.__pattern.search(file_or_content):
             return True
         return False
 
@@ -90,7 +90,7 @@ class RegexFilter(Filter):
         return self.__description
 
 
-class RegexFileNameFilter(RegexFilter):
+class RegexFileNameFilter(AbstractRegexFilter, Filter):
     def evaluate(self, file: Path) -> bool:
         return super().evaluate(file.stem)
 
@@ -98,8 +98,9 @@ class RegexFileNameFilter(RegexFilter):
 class ContentFilter(Filter):
     """A ContentFilter evaluates a file on a deeper level than it's filename or meta data."""
 
-    def load(self, file) -> Any:
-        """To evaluate a file we first must load it's content."""
+class RegexContentFilter(AbstractRegexFilter, ContentFilter):
+    def evaluate(self, file: str) -> bool:
+        return super().evaluate(file)
 
 
 @dataclass(frozen=True)

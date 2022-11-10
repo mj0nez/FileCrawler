@@ -10,7 +10,7 @@ from fileswitch.filters import (
     MultiStageFilter,
     NotHelloWorldFilter,
     RegexFileNameFilter,
-    RegexFilter,
+    AbstractRegexFilter,
     SimpleTxtFileFilter,
 )
 
@@ -53,7 +53,7 @@ def test_match_any(files):
 
 def test_regex_filter():
 
-    regex_filter = RegexFilter(
+    regex_filter = AbstractRegexFilter(
         r"(?<=abc)def", "Matches any characters between a-z or A-Z."
     )
 
@@ -70,16 +70,19 @@ def test_content_filter():
 
 def test_multi_stage_filter():
     all_filter = MultiStageFilter(
-        how=all,
+        how="sequential",
         filters=[NotHelloWorldFilter(), RegexFileNameFilter(r"(?<=abc)def", "")],
     )
     any_filter = MultiStageFilter(
-        how=any,
+        how="any",
         filters=[NotHelloWorldFilter(), RegexFileNameFilter(r"(?<=abc)def", "")],
     )
 
     assert not all_filter.evaluate(Path("156546565"))
     assert any_filter.evaluate(Path("156546565"))
+
+
+# TODO  Add proper test for stage types, for sequential break out etc!!
 
 
 def test_extension_filter():
