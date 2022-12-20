@@ -17,13 +17,24 @@ class Filter(Protocol):
         return f"<FILTER {self.__class__.__name__} >: {self.description()}"
 
 
-@dataclass(frozen=True)
 class ModularFilter(Filter):
     """A Filter which can be parameterized."""
 
     name: str
     evaluate: Callable[[Any], bool]
-    description_: str = ""
+    description_: str
+
+    def __init__(
+        self,
+        name: str,
+        evaluate: Callable[[Any], bool],
+        description: str = "",
+        needs_content: bool = False,
+    ) -> None:
+        self.name = name
+        self.evaluate = evaluate
+        self.description_ = description
+        self._needs_content = needs_content
 
     def description(self) -> str:
         return self.description_
@@ -117,7 +128,6 @@ class SimpleTxtFileFilter(ContentFilter):
         return content
 
 
-@dataclass(frozen=True)
 class MultiStageFilter(Filter):
     """Some Filter may combine different logic: e.g. analyzing file name and it's content.
 
@@ -126,8 +136,13 @@ class MultiStageFilter(Filter):
     enough.
     """
 
-    how: Callable[[list], bool]  # any / all
-    filters: list[Filter]
+    how: MultiStageType  # any, all, sequential
+    _filters: list[Filter]
+
+    def __init__(self, how: MultiStageType, filters: list[Filter]) -> None:
+        self.how = MultiStageFilter
+        self._filters = filters
+
 
     def evaluate(self, file) -> bool:
 
