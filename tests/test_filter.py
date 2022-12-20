@@ -10,6 +10,7 @@ from fileswitch.filters import (
     MultiStageFilter,
     MultiStageType,
     NotHelloWorldFilter,
+    RegexContentFilter,
     RegexFileNameFilter,
     AbstractRegexFilter,
     SimpleTxtFileFilter,
@@ -52,21 +53,35 @@ def test_match_any(files):
         assert match_any.evaluate(f)
 
 
-def test_regex_filter():
+class TestRegexFilters:
+    def test_abstract_regex_filter(self):
+        # FIXME the regex pattern is wrong - most likely it matches for def after an abc group
+        regex_filter = AbstractRegexFilter(
+            r"(?<=abc)def", "Matches any 'def' after an 'abc' group."
+        )
 
-    regex_filter = AbstractRegexFilter(
-        r"(?<=abc)def", "Matches any characters between a-z or A-Z."
-    )
+        assert regex_filter.evaluate("abcdef")
+        assert not regex_filter.evaluate("absdef")
 
-    assert regex_filter.evaluate("abcdef")
-    assert not regex_filter.evaluate("1565464")
+    def test_regex_file_name_filter(self):
+        regex_filter = RegexFileNameFilter(
+            r"(?<=abc)def", "Matches any 'def' after an 'abc' group."
+        )
+
+        assert regex_filter.evaluate(Path("abcdef"))
+        assert not regex_filter.evaluate(Path("absdef"))
+
+    def test_regex_content_filter(self):
+        regex_filter = RegexContentFilter(
+            r"(?<=abc)def", "Matches any 'def' after an 'abc' group."
+        )
+
+        assert regex_filter.evaluate("abcdef")
+        assert not regex_filter.evaluate("absdef")
 
 
-def test_content_filter():
-    scanner = SimpleTxtFileFilter(lambda: True, lambda: "Sample description")
-    assert isinstance(scanner, ContentFilter)
-    assert scanner.evaluate()
-    assert scanner.description() == "Sample description"
+def raise_an_exception(_):
+    raise Exception
 
 
 @pytest.fixture
@@ -89,13 +104,13 @@ class TestMultiStageFilter:
             MultiStageFilter(how="wrong_stage_type", filters=[])
 
     def test_any_filter(self):
-    any_filter = MultiStageFilter(
-        how="any",
-        filters=[NotHelloWorldFilter(), RegexFileNameFilter(r"(?<=abc)def", "")],
-    )
+        any_filter = MultiStageFilter(
+            how="any",
+            filters=[NotHelloWorldFilter(), RegexFileNameFilter(r"(?<=abc)def", "")],
+        )
 
         assert not any_filter.evaluate(Path("Hello World"))
-    assert any_filter.evaluate(Path("156546565"))
+        assert any_filter.evaluate(Path("156546565"))
 
     def test_sequential_filter(self):
         sequential_filter = MultiStageFilter(
@@ -137,7 +152,11 @@ class TestMultiStageFilter:
         assert any_filter.evaluate(Path("abcdef"))
 
 
-# TODO  Add proper test for stage types, for sequential break out etc!!
+def test_content_filter():
+    scanner = SimpleTxtFileFilter(lambda: True, lambda: "Sample description")
+    assert isinstance(scanner, ContentFilter)
+    assert scanner.evaluate()
+    assert scanner.description() == "Sample description"
 
 
 def test_extension_filter():

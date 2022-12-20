@@ -1,14 +1,25 @@
+import gzip
 import re
+import zipfile
+from collections import deque
 from dataclasses import dataclass, field
+from enum import Enum
+from io import BytesIO, IOBase, StringIO, TextIOBase
 from pathlib import Path
-from typing import Any, Callable, Optional, Protocol
+from typing import Any, Callable, Optional, Protocol, Union
+from uuid import uuid4, UUID
+
+from .utils import Payload
 
 
 class Filter(Protocol):
     """A Filter implements conditional logic that precedes an action."""
 
+    _uuid: UUID
     _needs_content: bool
+
     def __init__(self) -> None:
+        self._uuid = uuid4()
         self._needs_content = False
 
     def evaluate(self, file: Union[Path, Payload]) -> bool:
