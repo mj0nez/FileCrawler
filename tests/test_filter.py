@@ -8,6 +8,7 @@ from fileswitch.filters import (
     MatchAny,
     ModularFilter,
     MultiStageFilter,
+    MultiStageType,
     NotHelloWorldFilter,
     RegexFileNameFilter,
     AbstractRegexFilter,
@@ -68,18 +69,72 @@ def test_content_filter():
     assert scanner.description() == "Sample description"
 
 
-def test_multi_stage_filter():
-    all_filter = MultiStageFilter(
-        how="sequential",
-        filters=[NotHelloWorldFilter(), RegexFileNameFilter(r"(?<=abc)def", "")],
-    )
+@pytest.fixture
+def multi_stage_filters_with_exception():
+    return [
+        NotHelloWorldFilter(),
+        ModularFilter(
+            name="", evaluate=raise_an_exception, description="A test filter"
+        ),
+    ]
+
+
+class TestMultiStageFilter:
+    def test_filter_types(self):
+
+        my_filter = MultiStageFilter(how="any", filters=[])
+        assert my_filter._evaluate_any == my_filter.evaluate
+
+        with pytest.raises(ValueError):
+            MultiStageFilter(how="wrong_stage_type", filters=[])
+
+    def test_any_filter(self):
     any_filter = MultiStageFilter(
         how="any",
         filters=[NotHelloWorldFilter(), RegexFileNameFilter(r"(?<=abc)def", "")],
     )
 
-    assert not all_filter.evaluate(Path("156546565"))
+        assert not any_filter.evaluate(Path("Hello World"))
     assert any_filter.evaluate(Path("156546565"))
+
+    def test_sequential_filter(self):
+        sequential_filter = MultiStageFilter(
+            how="sequential",
+            filters=[NotHelloWorldFilter(), RegexFileNameFilter(r"(?<=abc)def", "")],
+        )
+        assert not sequential_filter.evaluate(Path("156546565"))
+        assert sequential_filter.evaluate(Path("abcdef"))
+
+    def test_filter_breakout(self):
+
+        # just raise an exception - test the test...
+        with pytest.raises(Exception):
+
+            error_filter = ModularFilter(name="", evaluate=raise_an_exception)
+            error_filter.evaluate("")
+
+    @pytest.mark.usefixtures("multi_stage_filters_with_exception")
+    def test_sequential_filter_evaluation(self, multi_stage_filters_with_exception):
+        sequential_filter = MultiStageFilter(
+            how="sequential", filters=multi_stage_filters_with_exception
+        )
+        with pytest.raises(Exception):
+            # should raise an error
+            sequential_filter.evaluate(Path("abcdef"))
+        # should work out fine
+        assert not sequential_filter.evaluate(Path("Hello World"))
+
+    @pytest.mark.usefixtures("multi_stage_filters_with_exception")
+    def test_sequential_filter_evaluation(self, multi_stage_filters_with_exception):
+        # the any filter should shortcut the exception
+        any_filter = MultiStageFilter(
+            how="any", filters=multi_stage_filters_with_exception
+        )
+        with pytest.raises(Exception):
+            # should raise an error
+            any_filter.evaluate(Path("Hello World"))
+        # should work out fine
+        assert any_filter.evaluate(Path("abcdef"))
 
 
 # TODO  Add proper test for stage types, for sequential break out etc!!

@@ -21,6 +21,10 @@ class Switch:
     def __repr__(self) -> str:
         return f"<SWITCH>: {self.filter} || {self.route}"
 
+    def needs_content(self) -> bool:
+        """Indicating if the filter requires the content of the file."""
+        return self.filter.needs_content()
+
 
 @dataclass
 class SwitchController:
@@ -31,7 +35,8 @@ class SwitchController:
     corresponding routes or None.
     """
 
-    switches: list[Switch] = field(default_factory=list)
+    _switches: list[Switch] = field(default_factory=list)
+    _needs_content: bool = False
 
     def check_switches(self, file: Path) -> tuple[Switch]:
         """Returns a collection of switches, whose filter match the given file."""
@@ -48,7 +53,10 @@ class SwitchController:
 
     def register_switches(self, switches: list[Switch]) -> None:
         """Adds a list of switches to the controller."""
-        self.switches.extend(switches)
+
+    def needs_content(self) -> bool:
+        """Indicates if the used filters require the preloaded content."""
+        return self._needs_content  # a func, to provide a consistent interface
 
 
 class SingleSwitchController(SwitchController):

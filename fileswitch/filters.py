@@ -7,11 +7,19 @@ from typing import Any, Callable, Optional, Protocol
 class Filter(Protocol):
     """A Filter implements conditional logic that precedes an action."""
 
-    def evaluate(self, file) -> bool:
+    _needs_content: bool
+    def __init__(self) -> None:
+        self._needs_content = False
+
+    def evaluate(self, file: Union[Path, Payload]) -> bool:
         """A Filter implements conditional logic that precedes an action ."""
 
     def description(self) -> str:
         """Provides a short description of it's evaluation method"""
+
+    def needs_content(self) -> bool:
+        """Indicates if the file content has to be provided before evaluation."""
+        return self._needs_content
 
     def __repr__(self) -> str:
         return f"<FILTER {self.__class__.__name__} >: {self.description()}"
@@ -109,6 +117,9 @@ class RegexFileNameFilter(AbstractRegexFilter, Filter):
 class ContentFilter(Filter):
     """A ContentFilter evaluates a file on a deeper level than it's filename or meta data."""
 
+    _needs_content: bool = True
+
+
 class RegexContentFilter(AbstractRegexFilter, ContentFilter):
     def evaluate(self, file: str) -> bool:
         return super().evaluate(file)
@@ -121,11 +132,10 @@ class SimpleTxtFileFilter(ContentFilter):
     evaluate: Callable
     description: Callable
 
-    def load(self, file, encoding="UTF-8") -> str:
 
-        with open(file, mode="r", encoding=encoding) as f:
-            content = f.read()
-        return content
+class MultiStageType(str, Enum):
+    ANY = "any"
+    SEQUENTIAL = "sequential"
 
 
 class MultiStageFilter(Filter):
@@ -143,19 +153,50 @@ class MultiStageFilter(Filter):
         self.how = MultiStageFilter
         self._filters = filters
 
+        if how == MultiStageType.ANY:
+            self.evaluate = self._evaluate_any
+        elif how == MultiStageType.SEQUENTIAL:
+            self.evaluate = self._evaluate_sequential
+        else:
+            raise ValueError
+
+    def check_stages(self, file: Path) -> tuple[Filter]:
+        """Returns a collection of filters, which match the given file."""
+        return tuple(filter for filter in self._filters if filter.evaluate(file))
 
     def evaluate(self, file) -> bool:
+        # The method will be monkey patched on Filter creation.
+        pass
 
-        # evaluate all filters and return overall assessment
-        evaluations = []
+    def _evaluate_sequential(self, file) -> bool:
 
-        for filter_stage in self.filters:
-            # If any was chosen, we could break after the first True value,
-            # but then we would have to check an additional conditional every
-            # loop iteration. Utilizing the built-ins should be more performant.
-            evaluations.append(filter_stage.evaluate(file))
+        for filter_stage in self._filters:
 
-        return self.how(evaluations)
+            # All filters will be evaluated one after the other.
+            # If one filter does not match, we shortcut the evaluation.
+            # This allows some kind of pre filtering, e.g.
+            # we just want specific .txt files but the providing source also contains .mp3 files.
+            # So, instead trying to analyze the mp3-content we shortcut the evaluation.
+            if not filter_stage.evaluate(file):
+                return False
+
+        # Otherwise we can return a positive result.
+        return True
+
+    def _evaluate_any(self, file) -> bool:
+
+        for filter_stage in self._filters:
+
+            # All filters will be evaluated one after the other.
+            # If one filter matches, we shortcut the evaluation.
+            if filter_stage.evaluate(file):
+                return True
+
+        # If no filters matches, the result is negative.
+        return False
+
+    def needs_content(self) -> bool:
+        return any(f.needs_content() for f in self._filters)
 
 
 # TODO add FilterFactory
