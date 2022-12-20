@@ -274,3 +274,7 @@ output/*
 
 # Data Bases
 **/*.db
+
+
+# ftp
+.ftp/*
