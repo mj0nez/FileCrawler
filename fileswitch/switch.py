@@ -49,10 +49,17 @@ class SwitchController:
     def register_switch(self, switch: Switch) -> None:
         """Adds a switch to the controller."""
         # TODO add a verification, that switches are unique
-        self.switches.append(switch)
+        self._switches.append(switch)
+
+        # Some filters evaluate on the content level and therefore require
+        # preloaded files. To allow the handler to preload the file or just
+        # use the files name/meta information we set this property.
+        self._needs_content = self._needs_content or switch.needs_content()
 
     def register_switches(self, switches: list[Switch]) -> None:
         """Adds a list of switches to the controller."""
+        for switch in switches:
+            self.register_switch(switch)
 
     def needs_content(self) -> bool:
         """Indicates if the used filters require the preloaded content."""
@@ -86,7 +93,7 @@ class SingleSwitchController(SwitchController):
         MultiSwitchException
             if more than one Switch was triggered
         """
-        route = tuple(switch for switch in self.switches if switch.evaluate(file))
+        route = tuple(switch for switch in self._switches if switch.evaluate(file))
 
         if len(route) > 1:
             raise MultiSwitchException(
