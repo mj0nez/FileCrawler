@@ -278,3 +278,4 @@ output/*
 
 # ftp
 .ftp/*
+sample_local/*
