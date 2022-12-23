@@ -1,0 +1,11 @@
+site_name: FileSwitch Documentation
+site_url: https://example.com/
+nav:
+  - Home: index.md
+  - About: about.md
+  - MyClass: myclass.md
+theme:
+  name: material
+plugins:
+  - search
+  - mkdocstrings
