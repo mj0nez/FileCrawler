@@ -279,3 +279,6 @@ output/*
 # ftp
 .ftp/*
 sample_local/*
+
+# mkdocs
+site/*
