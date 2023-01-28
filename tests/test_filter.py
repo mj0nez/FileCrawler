@@ -107,7 +107,10 @@ class TestMultiStageFilter:
     def test_any_filter(self):
         any_filter = MultiStageFilter(
             how="any",
-            filters=[NotHelloWorldFilter(), RegexFileNameFilter(r"(?<=abc)def", "")],
+            filters=[
+                NotHelloWorldFilter(),
+                RegexFileNameFilter(r"(?<=abc)def", ""),
+            ],
         )
 
         assert not any_filter.evaluate(Path("Hello World"))
@@ -116,7 +119,10 @@ class TestMultiStageFilter:
     def test_sequential_filter(self):
         sequential_filter = MultiStageFilter(
             how="sequential",
-            filters=[NotHelloWorldFilter(), RegexFileNameFilter(r"(?<=abc)def", "")],
+            filters=[
+                NotHelloWorldFilter(),
+                RegexFileNameFilter(r"(?<=abc)def", ""),
+            ],
         )
         assert not sequential_filter.evaluate(Path("156546565"))
         assert sequential_filter.evaluate(Path("abcdef"))
@@ -130,7 +136,9 @@ class TestMultiStageFilter:
             error_filter.evaluate("")
 
     @pytest.mark.usefixtures("multi_stage_filters_with_exception")
-    def test_sequential_filter_evaluation(self, multi_stage_filters_with_exception):
+    def test_sequential_filter_evaluation(
+        self, multi_stage_filters_with_exception
+    ):
         sequential_filter = MultiStageFilter(
             how="sequential", filters=multi_stage_filters_with_exception
         )
@@ -141,7 +149,9 @@ class TestMultiStageFilter:
         assert not sequential_filter.evaluate(Path("Hello World"))
 
     @pytest.mark.usefixtures("multi_stage_filters_with_exception")
-    def test_sequential_filter_evaluation(self, multi_stage_filters_with_exception):
+    def test_sequential_filter_evaluation(
+        self, multi_stage_filters_with_exception
+    ):
         # the any filter should shortcut the exception
         any_filter = MultiStageFilter(
             how="any", filters=multi_stage_filters_with_exception

@@ -40,7 +40,9 @@ class SwitchController:
 
     def check_switches(self, file: Path) -> tuple[Switch]:
         """Returns a collection of switches, whose filter match the given file."""
-        return tuple(switch for switch in self._switches if switch.evaluate(file))
+        return tuple(
+            switch for switch in self._switches if switch.evaluate(file)
+        )
 
     def get_routes(self, file: Path) -> tuple[Route]:
         """Returns a collection of routes, by evaluating the registered switches."""
@@ -93,7 +95,9 @@ class SingleSwitchController(SwitchController):
         MultiSwitchException
             if more than one Switch was triggered
         """
-        route = tuple(switch for switch in self._switches if switch.evaluate(file))
+        route = tuple(
+            switch for switch in self._switches if switch.evaluate(file)
+        )
 
         if len(route) > 1:
             raise MultiSwitchException(

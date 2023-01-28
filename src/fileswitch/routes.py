@@ -17,7 +17,9 @@ class Route:
 
 
 def get_console_route() -> Route:
-    return Route(lambda x: print(f"File {x} matches filter!"), "Prints the file name.")
+    return Route(
+        lambda x: print(f"File {x} matches filter!"), "Prints the file name."
+    )
 
 
 def create_transfer_action_from_stations(

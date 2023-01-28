@@ -51,14 +51,17 @@ class TestSwitchController:
         assert matching_switches and len(matching_switches) == 1
 
         # add another switch to the controller and check again
-        controller.register_switch(Switch(filter=MatchAny(), route=get_console_route()))
+        controller.register_switch(
+            Switch(filter=MatchAny(), route=get_console_route())
+        )
         matching_switches = controller.check_switches(hello_world_file)
         assert matching_switches and len(matching_switches) == 2
 
     @pytest.mark.usefixtures("hello_world_file")
     def test_switch_controller_w_action_provider(self, hello_world_file):
         hello_switch = Switch(
-            filter=HelloWorldFilter(), route=Route(lambda: "Hello", "Say's Hello")
+            filter=HelloWorldFilter(),
+            route=Route(lambda: "Hello", "Say's Hello"),
         )
 
         controller = SwitchController()

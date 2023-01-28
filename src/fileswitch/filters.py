@@ -173,7 +173,9 @@ class MultiStageFilter(Filter):
 
     def check_stages(self, file: Path) -> tuple[Filter]:
         """Returns a collection of filters, which match the given file."""
-        return tuple(filter for filter in self._filters if filter.evaluate(file))
+        return tuple(
+            filter for filter in self._filters if filter.evaluate(file)
+        )
 
     def evaluate(self, file) -> bool:
         # The method will be monkey patched on Filter creation.
