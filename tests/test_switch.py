@@ -1,14 +1,11 @@
-from fileswitch.filters import (
-    HelloWorldFilter,
-    MatchAny,
-    NotHelloWorldFilter,
-)
+from pathlib import Path
+
+import pytest
+
 from fileswitch.errors import MultiSwitchException
+from fileswitch.filters import HelloWorldFilter, MatchAny, NotHelloWorldFilter
 from fileswitch.routes import Route, get_console_route
 from fileswitch.switch import SingleSwitchController, Switch, SwitchController
-
-from pathlib import Path
-import pytest
 
 
 @pytest.fixture

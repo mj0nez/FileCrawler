@@ -1,7 +1,9 @@
 from pathlib import Path
 
 import pytest
+
 from fileswitch.filters import (
+    AbstractRegexFilter,
     ContentFilter,
     FileExtensionFilter,
     HelloWorldFilter,
@@ -12,7 +14,6 @@ from fileswitch.filters import (
     NotHelloWorldFilter,
     RegexContentFilter,
     RegexFileNameFilter,
-    AbstractRegexFilter,
     SimpleTxtFileFilter,
 )
 

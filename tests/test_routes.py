@@ -8,5 +8,3 @@ class TestRouteControl:
 
         # controller.routes["asdasd"].append(22)
         # controller.routes["asdasd"].append(22)
-
-
