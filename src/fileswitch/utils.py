@@ -1,9 +1,8 @@
-from pathlib import Path
-
 import gzip
 import zipfile
 from pathlib import Path
-from typing import Union, Any
+from typing import Any, Union
+
 import py7zr
 
 # currently three types of filter input are considered:
@@ -16,6 +15,7 @@ Payload = Union[
 CompressedArchive = Union[
     py7zr.SevenZipFile, gzip.GzipFile, zipfile.ZipFile
 ]  # archives to decompress
+
 
 class FileCargo:
     """A file to route."""

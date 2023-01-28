@@ -1,36 +1,25 @@
-[project]
-name = "fileswitch"
-version = "0.1.0"
-description = """A filter based file router.\nDesigned to allow granular file routings based on parametrized filters and varying sources and destinations."""
-authors = [
-    {name = "Marcel Johannesmann", email="mj0nez@fn.de"},
-]
-license = {file = "LICENSE"}
-readme = "README.md"
-requires-python = ">=3.9.5"
+[tool.black]
+line-length = 79
+target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | venv
+)/
+'''
 
-keywords = ["files", "routing", "filter", "transfer"]
+[tool.isort]
+line_length = 79
+profile = "black"
 
-classifiers = [
-    "Topic :: File Routing"
-]
-
-dependencies = [
-]
-
-[project.optional-dependencies]
-dev = [
-    "black>=22.6.0",
-    "pytest>=7.1.2",
-]
-
-[project.urls]
-homepage = "https://github.com/mj0nez/FileSwitch"
-repository = "https://github.com/mj0nez/FileSwitch"
-
-
-[build-system]
-# These are the assumed default build requirements from pip:
-# https://pip.pypa.io/en/stable/reference/pip/#pep-517-and-518-support
-requires = ["setuptools>=43.0.0", "wheel"]
-build-backend = "setuptools.build_meta"
+# [tool.pytest.ini_options]
+# path = [".", "src"]

@@ -1,8 +1,8 @@
-from typing import Any, Callable
-from fileswitch.stations import Station
-
 from collections import defaultdict
 from dataclasses import dataclass, field
+from typing import Any, Callable
+
+from fileswitch.stations import Station
 
 
 @dataclass(frozen=True)
@@ -46,7 +46,6 @@ class RouteController:
     ) -> Route:
 
         # check if route exists
-        
 
         # create route
         transfer_callable = create_transfer_action_from_stations(

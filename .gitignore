@@ -281,3 +281,5 @@ output/*
 sample_local/*
 
 site/*
+
+*.env

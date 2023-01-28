@@ -7,7 +7,7 @@ from enum import Enum
 from io import BytesIO, IOBase, StringIO, TextIOBase
 from pathlib import Path
 from typing import Any, Callable, Optional, Protocol, Union
-from uuid import uuid4, UUID
+from uuid import UUID, uuid4
 
 from .utils import Payload
 

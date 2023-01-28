@@ -2,9 +2,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Optional, Union
 
+from .errors import MultiSwitchException
 from .filters import Filter
 from .routes import Route
-from .errors import MultiSwitchException
 
 
 @dataclass(frozen=True)
