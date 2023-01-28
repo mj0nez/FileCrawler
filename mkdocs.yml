@@ -8,4 +8,7 @@ theme:
   name: material
 plugins:
   - search
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
